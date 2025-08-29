@@ -1,0 +1,82 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+WIDTH = 600
+HEIGHT = 400
+
+# Colors
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# Set up display
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Catch the Ball Game")
+
+# Clock
+clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 36)
+
+# Ball
+ball_radius = 25
+ball_x = random.randint(0, WIDTH - ball_radius)
+ball_y = 0
+ball_speed = 3
+
+# Player (Paddle)
+paddle_width = 100
+paddle_height = 15
+paddle_x = WIDTH // 2 - paddle_width // 2
+paddle_y = HEIGHT - 40
+paddle_speed = 7
+
+# Score
+score = 0
+
+# Game loop
+running = True
+while running:
+    screen.fill(WHITE)
+
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Move paddle
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and paddle_x > 0:
+        paddle_x -= paddle_speed
+    if keys[pygame.K_RIGHT] and paddle_x < WIDTH - paddle_width:
+        paddle_x += paddle_speed
+
+    # Move ball
+    ball_y += ball_speed
+
+    # Ball reset on catch or miss
+    if paddle_y < ball_y + ball_radius < paddle_y + paddle_height:
+        if paddle_x < ball_x < paddle_x + paddle_width:
+            score += 1
+            ball_y = 0
+            ball_x = random.randint(0, WIDTH - ball_radius)
+    elif ball_y > HEIGHT:
+        score -= 1
+        ball_y = 0
+        ball_x = random.randint(0, WIDTH - ball_radius)
+
+    # Draw paddle and ball
+    pygame.draw.rect(screen, BLUE, (paddle_x, paddle_y, paddle_width, paddle_height))
+    pygame.draw.circle(screen, RED, (ball_x, ball_y), ball_radius)
+
+    # Display score
+    score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+    screen.blit(score_text, (10, 10))
+
+    pygame.display.update()
+    clock.tick(60)
+
+pygame.quit()
